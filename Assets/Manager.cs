@@ -65,7 +65,6 @@ public class Manager : MonoBehaviour
                 if (stateMachine.Equals(States.PLAYING) && playersFoundCounter < 2)
                 {
                     stateMachine = States.PAUSED;
-                    print("I TRIED TO PAUSE");
                     return;
                 }
 
