@@ -95,10 +95,10 @@ public class Manager : MonoBehaviour
         {
 
             case States.STARTING:
-                displayedText.text = "Waiting for FIELD...";
+                displayedText.text = "Waiting for field...";
                 break;
             case States.WAITING_PLAYERS:
-                displayedText.text = "FIELD found, Waiting for " + (2 - playersFoundCounter) + " players...";
+                displayedText.text = "Waiting for " + (2 - playersFoundCounter) + " players...";
                 break;
             case States.PLAYING:
                 displayedText.text = "GO!";
