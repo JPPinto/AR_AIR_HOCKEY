@@ -34,6 +34,11 @@ public class Manager : MonoBehaviour
         UpdateText();
     }
 
+    States getCurrentState()
+    {
+        return stateMachine;
+    }
+
     //TODO Missing End condition handling
     void UpdateState()
     {
