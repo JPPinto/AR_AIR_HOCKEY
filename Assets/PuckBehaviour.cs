@@ -32,11 +32,10 @@ public class PuckBehaviour : MonoBehaviour {
     void Update() {
         if (GetComponent<MeshRenderer>().enabled) {
             currentSpeed = puck.velocity.magnitude;
-            //print("FORWARD: " + transform.forward);
 
             if (stacionary) {
-                transform.Rotate(new Vector3(0, 1, 0), 170f, Space.Self);
-                applyForce(afterThrust, transform.forward, false);
+                //transform.Rotate(new Vector3(0, 1, 0), 170f, Space.Self);
+                //applyForce(afterThrust, transform.forward, false);
                 stacionary = false;
             }
         }
