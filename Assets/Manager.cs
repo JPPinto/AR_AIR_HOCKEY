@@ -12,17 +12,21 @@ using System.Collections;
  * ENDED = Winning condition has been reached
  * 
  */
-enum States : int { STARTING, WAITING_PLAYERS, PLAYING, PAUSED, ENDED };
+public enum State : int { STARTING, WAITING_PLAYERS, PLAYING, PAUSED, ENDED };
 
 public class Manager : MonoBehaviour
 {
-    private States stateMachine = States.STARTING;
+    private State stateMachine = State.STARTING;
     public Text displayedText = null;
     public int playersFoundCounter = 0;
+    public int playerOneCounter = 0;
+    public int playerTwoCounter = 0;
 
     // Use this for initialization
     void Start()
     {
+        playerOneCounter = 0;
+        playerTwoCounter = 0;
         displayedText = GetComponent<Text>();
         UpdateText();
     }
@@ -34,7 +38,7 @@ public class Manager : MonoBehaviour
         UpdateText();
     }
 
-    States getCurrentState()
+    public State getCurrentState()
     {
         return stateMachine;
     }
@@ -46,10 +50,6 @@ public class Manager : MonoBehaviour
         playersFoundCounter = 0;
 
         GameObject field = GameObject.FindGameObjectWithTag("Field");
-        if (stateMachine.Equals(States.PLAYING))
-        {
-            print("PLAYING");
-        }
         if (field)
         {
             if (field.GetComponent<MeshRenderer>().isVisible)
@@ -67,23 +67,23 @@ public class Manager : MonoBehaviour
                     playersFoundCounter++;
                 }
 
-                if (stateMachine.Equals(States.PLAYING) && playersFoundCounter < 2)
+                if (stateMachine.Equals(State.PLAYING) && playersFoundCounter < 2)
                 {
-                    stateMachine = States.PAUSED;
+                    stateMachine = State.PAUSED;
                     return;
                 }
 
                 if (playersFoundCounter == 2)
                 {
-                    stateMachine = States.PLAYING;
+                    stateMachine = State.PLAYING;
                 }
                 else
                 {
-                    if (!stateMachine.Equals(States.PAUSED))
-                        stateMachine = States.WAITING_PLAYERS;
+                    if (!stateMachine.Equals(State.PAUSED))
+                        stateMachine = State.WAITING_PLAYERS;
                 }
             }
-            else { stateMachine = States.STARTING; }
+            else { stateMachine = State.STARTING; }
         }
 
     }
@@ -94,19 +94,19 @@ public class Manager : MonoBehaviour
         switch (stateMachine)
         {
 
-            case States.STARTING:
+            case State.STARTING:
                 displayedText.text = "Waiting for field...";
                 break;
-            case States.WAITING_PLAYERS:
+            case State.WAITING_PLAYERS:
                 displayedText.text = "Waiting for " + (2 - playersFoundCounter) + " players...";
                 break;
-            case States.PLAYING:
+            case State.PLAYING:
                 displayedText.text = "GO!";
                 break;
-            case States.PAUSED:
+            case State.PAUSED:
                 displayedText.text = "PAUSE\n " + (2 - playersFoundCounter) + " undetected";
                 break;
-            case States.ENDED:
+            case State.ENDED:
                 displayedText.text = "Waiting for FIELD...";
                 break;
         }

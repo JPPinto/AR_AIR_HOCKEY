@@ -4,39 +4,68 @@ using System.Collections;
 
 public class PuckBehaviour : MonoBehaviour {
     public float impulseThrust;
-    public float drag;
     public float currentSpeed;
-    public Vector3 inverseForward;
     private Rigidbody puck;
-    public bool switchDirection = false;
     public int leftBarrierHitPoints = 0;
     public int rightBarrierHitPoints = 0;
     public bool stacionary;
     public float afterThrust;
+    public State currentState;
+    public float pausedVelocity;
+    private GameObject manager;
 
     void Start() {
         puck = GetComponent<Rigidbody>();
         impulseThrust = 800f;
         afterThrust = 800f;
-        switchDirection = true;
         leftBarrierHitPoints = 0;
         rightBarrierHitPoints = 0;
         currentSpeed = puck.velocity.magnitude;
         stacionary = true;
+        pausedVelocity = 0;
+        manager = GameObject.FindGameObjectWithTag("GameMaster");
 
-        drag = 0.5f; // (thrust / 2) / thrust;
-        puck.drag = drag;
-
+        puck.drag = 0.5f; 
     }
 
-    void Update() {
+    void FixedUpdate() {
         if (GetComponent<MeshRenderer>().enabled) {
             currentSpeed = puck.velocity.magnitude;
 
-            if (stacionary) {
-                //transform.Rotate(new Vector3(0, 1, 0), 170f, Space.Self);
-                //applyForce(afterThrust, transform.forward, false);
-                stacionary = false;
+            currentState = manager.GetComponent<Manager>().getCurrentState();
+
+            switch (currentState) {
+                case State.STARTING:
+                    transform.position = Vector3.zero;
+                    stacionary = true;
+                    break;
+                case State.PLAYING:
+                    if (pausedVelocity != 0) {
+                        applyForce(pausedVelocity, transform.forward, false);
+                        pausedVelocity = 0;
+                    } else {
+                        if (stacionary) {
+                            stacionary = false;
+                            int gen = Random.Range(0, 2);
+                            print("GEN: " + gen);
+                            if (gen == 0)
+                                transform.Rotate(new Vector3(0, 1, 0), 45f, Space.Self);
+                            else
+                                transform.Rotate(new Vector3(0, 1, 0), -45f, Space.Self);
+
+                            applyForce(impulseThrust / 2.5f, transform.forward, false);
+                        }
+                    }
+                    break;
+                case State.PAUSED:
+                    pausedVelocity = currentSpeed;
+                    puck.velocity = Vector3.zero;
+                    break;
+                case State.ENDED:
+                    puck.velocity = Vector3.zero;
+                    transform.position = Vector3.zero;
+                    break;
+                    stacionary = true;
             }
         }
     }
@@ -48,7 +77,6 @@ public class PuckBehaviour : MonoBehaviour {
 
     void OnCollisionEnter(Collision col) {
         //Check collisions and apply conter-force
-        print("Collided");
 
         if (col.gameObject.name == "P1 Goal") {
             //SCORE
@@ -80,13 +108,12 @@ public class PuckBehaviour : MonoBehaviour {
             leftBarrierHitPoints = 0;
             rightBarrierHitPoints = 0;
 
-            Vector3 sizeOfImpactedObject = col.collider.bounds.size;
-            Debug.Log("IMPACTED OBJECT SIZE: " + sizeOfImpactedObject);
-
             ContactPoint contact = col.contacts[0];
-            
+
             /* This gave to much work to be deleted, so it will remain a mark forever...
              * 
+            Vector3 sizeOfImpactedObject = col.collider.bounds.size;
+            Debug.Log("IMPACTED OBJECT SIZE: " + sizeOfImpactedObject);
             Debug.Log(contact.thisCollider.name + " hit " + contact.otherCollider.name);
             Debug.Log("CONTACT POINT: " + contact.point);
             Debug.Log("CONTACT NORMAL: " + contact.normal);
