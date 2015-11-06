@@ -40,14 +40,13 @@ public class PuckBehaviour : MonoBehaviour {
                     stacionary = true;
                     break;
                 case State.PLAYING:
-                    if (pausedVelocity != 0) {
-                        applyForce(pausedVelocity, transform.forward, false);
-                        pausedVelocity = 0;
-                    } else {
+                    //if (pausedVelocity != 0) {
+                    //    applyForce(pausedVelocity, transform.forward, false);
+                    //    pausedVelocity = 0;
+                    //} else {
                         if (stacionary) {
                             stacionary = false;
                             int gen = Random.Range(0, 2);
-                            print("GEN: " + gen);
                             if (gen == 0)
                                 transform.Rotate(new Vector3(0, 1, 0), 45f, Space.Self);
                             else
@@ -55,17 +54,17 @@ public class PuckBehaviour : MonoBehaviour {
 
                             applyForce(impulseThrust / 2.5f, transform.forward, false);
                         }
-                    }
+                    //}
                     break;
                 case State.PAUSED:
-                    pausedVelocity = currentSpeed;
+                    //pausedVelocity = currentSpeed;
                     puck.velocity = Vector3.zero;
                     break;
                 case State.ENDED:
                     puck.velocity = Vector3.zero;
                     transform.position = Vector3.zero;
-                    break;
                     stacionary = true;
+                    break;
             }
         }
     }
@@ -81,13 +80,15 @@ public class PuckBehaviour : MonoBehaviour {
         if (col.gameObject.name == "P1 Goal") {
             //SCORE
             puck.velocity = Vector3.zero;
-            transform.position = new Vector3(-310f, 0f, 0f);
+            transform.position = new Vector3(-250f, 0f, 0f);
+            manager.GetComponent<Manager>().playerTwoCounter++;
         }
 
         if (col.gameObject.name == "P2 Goal") {
             //SCORE
             puck.velocity = Vector3.zero;
-            transform.position = new Vector3(310f, 0f, 0f);
+            transform.position = new Vector3(250f, 0f, 0f);
+            manager.GetComponent<Manager>().playerOneCounter++;
         }
 
         if (col.gameObject.name == "Right Barrier" && rightBarrierHitPoints == 0) {

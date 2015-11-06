@@ -21,6 +21,8 @@ public class Manager : MonoBehaviour
     public int playersFoundCounter = 0;
     public int playerOneCounter = 0;
     public int playerTwoCounter = 0;
+    public GameObject scoreOne;
+    public GameObject scoreTwo;
 
     // Use this for initialization
     void Start()
@@ -36,6 +38,7 @@ public class Manager : MonoBehaviour
     {
         UpdateState();
         UpdateText();
+        UpdateScore();
     }
 
     public State getCurrentState()
@@ -95,6 +98,8 @@ public class Manager : MonoBehaviour
         {
 
             case State.STARTING:
+                playerOneCounter = 0;
+                playerTwoCounter = 0;
                 displayedText.text = "Waiting for field...";
                 break;
             case State.WAITING_PLAYERS:
@@ -110,5 +115,13 @@ public class Manager : MonoBehaviour
                 displayedText.text = "Waiting for FIELD...";
                 break;
         }
+    }
+
+    void UpdateScore() {
+        GameObject scoreOne = GameObject.FindGameObjectWithTag("ScoreOne");
+        GameObject scoreTwo = GameObject.FindGameObjectWithTag("ScoreTwo");
+
+        scoreOne.GetComponent<Text>().text = "P1: " + playerOneCounter;
+        scoreTwo.GetComponent<Text>().text = "P2: " + playerTwoCounter;
     }
 }
