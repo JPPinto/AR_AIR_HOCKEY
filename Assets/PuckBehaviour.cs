@@ -8,24 +8,24 @@ public class PuckBehaviour : MonoBehaviour {
     private Rigidbody puck;
     public int leftBarrierHitPoints = 0;
     public int rightBarrierHitPoints = 0;
+    public bool outsideBarrierHitPoints;
     public bool stacionary;
-    public float afterThrust;
     public State currentState;
-    public float pausedVelocity;
+    public bool paused;
     private GameObject manager;
 
     void Start() {
         puck = GetComponent<Rigidbody>();
         impulseThrust = 800f;
-        afterThrust = 800f;
         leftBarrierHitPoints = 0;
         rightBarrierHitPoints = 0;
+        outsideBarrierHitPoints = false;
         currentSpeed = puck.velocity.magnitude;
         stacionary = true;
-        pausedVelocity = 0;
+        paused = false;
         manager = GameObject.FindGameObjectWithTag("GameMaster");
 
-        puck.drag = 0.5f; 
+        puck.drag = 0.5f;
     }
 
     void FixedUpdate() {
@@ -40,10 +40,10 @@ public class PuckBehaviour : MonoBehaviour {
                     stacionary = true;
                     break;
                 case State.PLAYING:
-                    //if (pausedVelocity != 0) {
-                    //    applyForce(pausedVelocity, transform.forward, false);
-                    //    pausedVelocity = 0;
-                    //} else {
+                    if (paused) {
+                        applyForce(100f, transform.forward, false);
+                        paused = false;
+                    } else {
                         if (stacionary) {
                             stacionary = false;
                             int gen = Random.Range(0, 2);
@@ -54,10 +54,10 @@ public class PuckBehaviour : MonoBehaviour {
 
                             applyForce(impulseThrust / 2.5f, transform.forward, false);
                         }
-                    //}
+                    }
                     break;
                 case State.PAUSED:
-                    //pausedVelocity = currentSpeed;
+                    paused = true;
                     puck.velocity = Vector3.zero;
                     break;
                 case State.ENDED:
@@ -75,11 +75,10 @@ public class PuckBehaviour : MonoBehaviour {
     }
 
     void OnCollisionEnter(Collision col) {
-        //Check collisions and apply conter-force
-
         if (col.gameObject.name == "P1 Goal") {
             //SCORE
             puck.velocity = Vector3.zero;
+            outsideBarrierHitPoints = false;
             transform.position = new Vector3(-250f, 0f, 0f);
             manager.GetComponent<Manager>().playerTwoCounter++;
         }
@@ -87,6 +86,7 @@ public class PuckBehaviour : MonoBehaviour {
         if (col.gameObject.name == "P2 Goal") {
             //SCORE
             puck.velocity = Vector3.zero;
+            outsideBarrierHitPoints = false;
             transform.position = new Vector3(250f, 0f, 0f);
             manager.GetComponent<Manager>().playerOneCounter++;
         }
@@ -94,6 +94,7 @@ public class PuckBehaviour : MonoBehaviour {
         if (col.gameObject.name == "Right Barrier" && rightBarrierHitPoints == 0) {
             rightBarrierHitPoints++;
             leftBarrierHitPoints = 0;
+            outsideBarrierHitPoints = false;
 
             invertDirectionZ();
         }
@@ -101,13 +102,23 @@ public class PuckBehaviour : MonoBehaviour {
         if (col.gameObject.name == "Left Barrier" && leftBarrierHitPoints == 0) {
             leftBarrierHitPoints++;
             rightBarrierHitPoints = 0;
+            outsideBarrierHitPoints = false;
 
             invertDirectionZ();
+        }
+
+        if (col.gameObject.tag == "Outside Barrier" && !outsideBarrierHitPoints) {
+            leftBarrierHitPoints = 0;
+            rightBarrierHitPoints = 0;
+            outsideBarrierHitPoints = true;
+
+            invertDirectionX();
         }
 
         if (col.gameObject.name == "Paddle") {
             leftBarrierHitPoints = 0;
             rightBarrierHitPoints = 0;
+            outsideBarrierHitPoints = false;
 
             ContactPoint contact = col.contacts[0];
 
@@ -132,11 +143,11 @@ public class PuckBehaviour : MonoBehaviour {
             float angle = distCenterPercentage * 45;
             Debug.Log("ANGLE TO ROTATE: " + angle);*/
 
-            invertDirectionX(contact.normal);
+            changeDirection(contact.normal);
         }
     }
 
-    void invertDirectionX(Vector3 direction) {
+    void changeDirection(Vector3 direction) {
         //Stop puck before applying the same force but with inverted direction of axis x with a rotation
         puck.isKinematic = true;
         puck.velocity = Vector3.zero;
@@ -148,8 +159,6 @@ public class PuckBehaviour : MonoBehaviour {
     }
 
     void invertDirectionZ() {
-        afterThrust = currentSpeed;
-
         //Stop puck before applying the same force but with inverted direction of axis z
         puck.isKinematic = true;
         puck.velocity = Vector3.zero;
@@ -157,6 +166,17 @@ public class PuckBehaviour : MonoBehaviour {
 
         transform.forward = new Vector3(transform.forward.x, transform.forward.y, transform.forward.z * (-1f));
 
-        applyForce(afterThrust, transform.forward, true);
+        applyForce(currentSpeed, transform.forward, true);
+    }
+
+    void invertDirectionX() {
+        //Stop puck before applying the same force but with inverted direction of axis z
+        puck.isKinematic = true;
+        puck.velocity = Vector3.zero;
+        puck.isKinematic = false;
+
+        transform.forward = new Vector3(transform.forward.x * (-1f), transform.forward.y, transform.forward.z);
+
+        applyForce(currentSpeed, transform.forward, true);
     }
 }
