@@ -56,6 +56,7 @@ public class PuckBehaviour : MonoBehaviour {
         _ACPuckHitSide.clip = hitSideClip;
         _ACBackgroundMusic.clip = backgroundMusicClip;
         _ACBackgroundMusic.loop = true;
+        _ACBackgroundMusic.volume = 0.5f;
     }
 
     void FixedUpdate() {
