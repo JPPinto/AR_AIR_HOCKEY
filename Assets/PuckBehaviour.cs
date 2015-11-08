@@ -14,7 +14,26 @@ public class PuckBehaviour : MonoBehaviour {
     public bool paused;
     private GameObject manager;
 
+    private AudioSource _ACfallDown;
+    private AudioSource _ACGoal;
+    private AudioSource _ACHitPaddle;
+    private AudioSource _ACPuckHitSide;
+
     void Start() {
+        _ACfallDown = (AudioSource)gameObject.AddComponent<AudioSource>();
+        _ACGoal = (AudioSource)gameObject.AddComponent<AudioSource>();
+        _ACHitPaddle = (AudioSource)gameObject.AddComponent<AudioSource>();
+        _ACPuckHitSide = (AudioSource)gameObject.AddComponent<AudioSource>();
+
+        AudioClip fallDownClip = (AudioClip)Resources.Load("fall_down");
+        AudioClip goalClip = (AudioClip)Resources.Load("goal");
+        AudioClip hitPaddleClip = (AudioClip)Resources.Load("hit_paddle");
+        AudioClip hitSideClip = (AudioClip)Resources.Load("puck_hit_side");
+        _ACfallDown.clip = fallDownClip;
+        _ACGoal.clip = goalClip;
+        _ACHitPaddle.clip = hitPaddleClip;
+        _ACPuckHitSide.clip = hitSideClip;
+
         puck = GetComponent<Rigidbody>();
         impulseThrust = 800f;
         leftBarrierHitPoints = 0;
@@ -80,6 +99,7 @@ public class PuckBehaviour : MonoBehaviour {
             puck.velocity = Vector3.zero;
             outsideBarrierHitPoints = false;
             transform.position = new Vector3(-250f, 0f, 0f);
+            _ACGoal.Play();
             manager.GetComponent<Manager>().playerTwoCounter++;
         }
 
@@ -88,6 +108,7 @@ public class PuckBehaviour : MonoBehaviour {
             puck.velocity = Vector3.zero;
             outsideBarrierHitPoints = false;
             transform.position = new Vector3(250f, 0f, 0f);
+            _ACGoal.Play();
             manager.GetComponent<Manager>().playerOneCounter++;
         }
 
@@ -95,6 +116,7 @@ public class PuckBehaviour : MonoBehaviour {
             rightBarrierHitPoints++;
             leftBarrierHitPoints = 0;
             outsideBarrierHitPoints = false;
+            _ACPuckHitSide.Play();
 
             invertDirectionZ();
         }
@@ -103,6 +125,7 @@ public class PuckBehaviour : MonoBehaviour {
             leftBarrierHitPoints++;
             rightBarrierHitPoints = 0;
             outsideBarrierHitPoints = false;
+            _ACPuckHitSide.Play();
 
             invertDirectionZ();
         }
@@ -111,6 +134,7 @@ public class PuckBehaviour : MonoBehaviour {
             leftBarrierHitPoints = 0;
             rightBarrierHitPoints = 0;
             outsideBarrierHitPoints = true;
+            _ACPuckHitSide.Play();
 
             invertDirectionX();
         }
@@ -142,7 +166,7 @@ public class PuckBehaviour : MonoBehaviour {
             
             float angle = distCenterPercentage * 45;
             Debug.Log("ANGLE TO ROTATE: " + angle);*/
-
+            _ACHitPaddle.Play();
             changeDirection(contact.normal);
         }
     }
