@@ -71,7 +71,7 @@ public class PuckBehaviour : MonoBehaviour {
                     stacionary = true;
                     if (!backgroundMusicOn) {
                         _ACBackgroundMusic.Play();
-                        backgroundMusicOn = true;
+                         backgroundMusicOn = true;
                     }
                     break;
                 case State.PLAYING:
@@ -170,7 +170,7 @@ public class PuckBehaviour : MonoBehaviour {
             invertDirectionX();
         }
 
-        if (col.gameObject.name == "Paddle") {
+        if (col.gameObject.name == "Paddle" && currentState.Equals(State.PLAYING)) {
             leftBarrierHitPoints = 0;
             rightBarrierHitPoints = 0;
             outsideBarrierHitPoints = false;
