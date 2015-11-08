@@ -19,21 +19,11 @@ public class PuckBehaviour : MonoBehaviour {
     private AudioSource _ACHitPaddle;
     private AudioSource _ACPuckHitSide;
 
+    private AudioSource _ACBackgroundMusic;
+    private bool backgroundMusicOn = false;
+
     void Start() {
-        _ACfallDown = (AudioSource)gameObject.AddComponent<AudioSource>();
-        _ACGoal = (AudioSource)gameObject.AddComponent<AudioSource>();
-        _ACHitPaddle = (AudioSource)gameObject.AddComponent<AudioSource>();
-        _ACPuckHitSide = (AudioSource)gameObject.AddComponent<AudioSource>();
-
-        AudioClip fallDownClip = (AudioClip)Resources.Load("fall_down");
-        AudioClip goalClip = (AudioClip)Resources.Load("goal");
-        AudioClip hitPaddleClip = (AudioClip)Resources.Load("hit_paddle");
-        AudioClip hitSideClip = (AudioClip)Resources.Load("puck_hit_side");
-        _ACfallDown.clip = fallDownClip;
-        _ACGoal.clip = goalClip;
-        _ACHitPaddle.clip = hitPaddleClip;
-        _ACPuckHitSide.clip = hitSideClip;
-
+        LoadAudio();
         puck = GetComponent<Rigidbody>();
         impulseThrust = 800f;
         leftBarrierHitPoints = 0;
@@ -47,6 +37,27 @@ public class PuckBehaviour : MonoBehaviour {
         puck.drag = 0.5f;
     }
 
+    void LoadAudio() {
+        _ACfallDown = (AudioSource)gameObject.AddComponent<AudioSource>();
+        _ACGoal = (AudioSource)gameObject.AddComponent<AudioSource>();
+        _ACHitPaddle = (AudioSource)gameObject.AddComponent<AudioSource>();
+        _ACPuckHitSide = (AudioSource)gameObject.AddComponent<AudioSource>();
+        _ACBackgroundMusic = (AudioSource)gameObject.AddComponent<AudioSource>();
+
+        AudioClip fallDownClip = (AudioClip)Resources.Load("fall_down");
+        AudioClip goalClip = (AudioClip)Resources.Load("goal");
+        AudioClip hitPaddleClip = (AudioClip)Resources.Load("hit_paddle");
+        AudioClip hitSideClip = (AudioClip)Resources.Load("puck_hit_side");
+        AudioClip backgroundMusicClip = (AudioClip)Resources.Load("purity");
+
+        _ACfallDown.clip = fallDownClip;
+        _ACGoal.clip = goalClip;
+        _ACHitPaddle.clip = hitPaddleClip;
+        _ACPuckHitSide.clip = hitSideClip;
+        _ACBackgroundMusic.clip = backgroundMusicClip;
+        _ACBackgroundMusic.loop = true;
+    }
+
     void FixedUpdate() {
         if (GetComponent<MeshRenderer>().enabled) {
             currentSpeed = puck.velocity.magnitude;
@@ -57,12 +68,24 @@ public class PuckBehaviour : MonoBehaviour {
                 case State.STARTING:
                     transform.position = Vector3.zero;
                     stacionary = true;
+                    if (!backgroundMusicOn) {
+                        _ACBackgroundMusic.Play();
+                        backgroundMusicOn = true;
+                    }
                     break;
                 case State.PLAYING:
                     if (paused) {
+                        if (backgroundMusicOn) {
+                            _ACBackgroundMusic.Pause();
+                            backgroundMusicOn = false;
+                        }
                         applyForce(100f, transform.forward, false);
                         paused = false;
                     } else {
+                        if (!backgroundMusicOn) {
+                            _ACBackgroundMusic.UnPause();
+                            backgroundMusicOn = true;
+                        }
                         if (stacionary) {
                             stacionary = false;
                             int gen = Random.Range(0, 2);
@@ -82,6 +105,10 @@ public class PuckBehaviour : MonoBehaviour {
                 case State.ENDED:
                     puck.velocity = Vector3.zero;
                     transform.position = Vector3.zero;
+                    if (backgroundMusicOn) {
+                        _ACBackgroundMusic.Stop();
+                        backgroundMusicOn = false;
+                    }
                     stacionary = true;
                     break;
             }
