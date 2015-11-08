@@ -144,6 +144,7 @@ public class PuckBehaviour : MonoBehaviour {
             rightBarrierHitPoints++;
             leftBarrierHitPoints = 0;
             outsideBarrierHitPoints = false;
+            _ACPuckHitSide.volume = calculateVolume(puck.velocity.magnitude);
             _ACPuckHitSide.Play();
 
             invertDirectionZ();
@@ -153,6 +154,7 @@ public class PuckBehaviour : MonoBehaviour {
             leftBarrierHitPoints++;
             rightBarrierHitPoints = 0;
             outsideBarrierHitPoints = false;
+            _ACPuckHitSide.volume = calculateVolume(puck.velocity.magnitude);
             _ACPuckHitSide.Play();
 
             invertDirectionZ();
@@ -162,6 +164,7 @@ public class PuckBehaviour : MonoBehaviour {
             leftBarrierHitPoints = 0;
             rightBarrierHitPoints = 0;
             outsideBarrierHitPoints = true;
+            _ACPuckHitSide.volume = calculateVolume(puck.velocity.magnitude);
             _ACPuckHitSide.Play();
 
             invertDirectionX();
@@ -230,5 +233,17 @@ public class PuckBehaviour : MonoBehaviour {
         transform.forward = new Vector3(transform.forward.x * (-1f), transform.forward.y, transform.forward.z);
 
         applyForce(currentSpeed, transform.forward, true);
+    }
+
+    float calculateVolume(float speed) {
+        if (speed >= impulseThrust) {
+            return 1.0f;
+        } else if (speed <= 0.0f) {
+            return 0.0f;
+        } else if (speed < (impulseThrust / 2)) {
+            return 0.5f;
+        } else {
+            return speed / impulseThrust;
+        }       
     }
 }
